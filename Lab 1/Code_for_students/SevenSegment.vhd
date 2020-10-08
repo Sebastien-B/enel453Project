@@ -16,7 +16,7 @@ architecture Behavioral of SevenSegment is
              input    : in  STD_LOGIC_VECTOR (3 downto 0);
              DP,Blank : in  STD_LOGIC                               
           );                  
-   end  Component;   
+   end  Component;
 begin
 
 --Note that port mapping begins after begin (common source of error).

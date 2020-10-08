@@ -14,9 +14,11 @@ end top_level;
 architecture Behavioral of top_level is
     -- Signal declaration
     Signal Num_Hex0, Num_Hex1, Num_Hex2, Num_Hex3, Num_Hex4, Num_Hex5 : STD_LOGIC_VECTOR (3 downto 0):= (others=>'0');   
-    Signal DP_in, Blank:  STD_LOGIC_VECTOR (5 downto 0);
-    Signal switch_inputs: STD_LOGIC_VECTOR (12 downto 0);
-    Signal bcd:           STD_LOGIC_VECTOR (15 DOWNTO 0);
+    Signal DP_in, Blank:      STD_LOGIC_VECTOR (5 downto 0);
+    Signal switch_inputs:     STD_LOGIC_VECTOR (12 downto 0);
+    Signal mux_switch_inputs: STD_LOGIC_VECTOR (15 DOWNTO 0);
+    Signal bcd:               STD_LOGIC_VECTOR (15 DOWNTO 0);
+    Signal mux_out:           STD_LOGIC_VECTOR (15 DOWNTO 0);
 
 	 -- Component declaration
     Component SevenSegment is
@@ -34,17 +36,31 @@ architecture Behavioral of top_level is
 		       );
     END Component;
 
+    Component MUX_2BUS16_TO1_BUS16 is
+        port ( in1     : in  std_logic_vector(15 downto 0);
+               in2     : in  std_logic_vector(15 downto 0);
+               s       : in  std_logic;
+               mux_out : out std_logic_vector(15 downto 0) -- notice no semi-colon 
+             );
+    end Component;
+
 	 -- Logic
     begin
-        Num_Hex0 <= bcd(3  downto  0); 
-	     Num_Hex1 <= bcd(7  downto  4);
-        Num_Hex2 <= bcd(11 downto  8);
-        Num_Hex3 <= bcd(15 downto 12);
+        Num_Hex0 <= mux_out(3  downto  0); 
+	     Num_Hex1 <= mux_out(7  downto  4);
+        Num_Hex2 <= mux_out(11 downto  8);
+        Num_Hex3 <= mux_out(15 downto 12);
         Num_Hex4 <= "0000";
         Num_Hex5 <= "0000";   
         DP_in    <= "000000"; -- position of the decimal point in the display (1=LED on,0=LED off)
         Blank    <= "110000"; -- blank the 2 MSB 7-segment displays (1=7-seg display off, 0=7-seg display on)
 
+    MUX_2BUS16_TO1_BUS16_ins: MUX_2BUS16_TO1_BUS16
+        PORT MAP( in1     => mux_switch_inputs,
+                  in2     => bcd,
+                  s       => SW(9),
+                  mux_out => mux_out
+                );
 
     SevenSegment_ins: SevenSegment  
         PORT MAP( Num_Hex0 => Num_Hex0,
@@ -65,6 +81,7 @@ architecture Behavioral of top_level is
 
     LEDR(9 downto 0) <= SW(9 downto 0); -- gives visual display of the switch inputs to the LEDs on board
     switch_inputs <= "00000" & SW(7 downto 0);
+    mux_switch_inputs <= "00000000" & SW(7 downto 0);
 
     binary_bcd_ins: binary_bcd                               
         PORT MAP(
