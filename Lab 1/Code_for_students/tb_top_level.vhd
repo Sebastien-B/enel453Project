@@ -71,22 +71,26 @@ begin
 
         -- Reset generation
         -- EDIT: Check that reset_n is really your reset signal
+        --reset_n <= '1';
+        --wait for 100 ns;
         reset_n <= '1';
-        wait for 100 ns;
-        reset_n <= '0';
-        wait for 100 ns;
+        --wait for 100 ns;
 
         -- EDIT Add stimuli here
         wait for 100 * TbPeriod;
         
         stimloop2 : for j in 0 to 1 loop
            stimloop1 : for i in 0 to 255 loop
+              SW <= DecimalFlag OR std_logic_vector(TbSwInput);
+              wait for 100 ns;
               TbSwInput <= TbSwInput + "1";
-              SW <= DecimalFlag AND std_logic_vector(TbSwInput);
               wait for 100 * TbPeriod;
            end loop stimloop1;
            wait for 900 * TbPeriod;
-           DecimalFlag <= "1000000000"; -- Hex conversion flag still doesn't work.
+           TbSwInput <= (others => '0');
+           wait for 100 ns;
+           DecimalFlag <= "1100000000"; -- Hex conversion flag still doesn't work.
+           wait for 100 ns;
         end loop stimloop2;
         
         
