@@ -208,9 +208,9 @@ set_location_assignment PIN_L19 -to HEX5[7]
 #============================================================
 # KEY
 #============================================================
-set_instance_assignment -name IO_STANDARD "3.3 V Schmitt Trigger" -to KEY[0]
+set_instance_assignment -name IO_STANDARD "3.3 V Schmitt Trigger" -to save
 set_instance_assignment -name IO_STANDARD "3.3 V Schmitt Trigger" -to reset_n
-set_location_assignment PIN_B8 -to KEY[0]
+set_location_assignment PIN_B8 -to save
 set_location_assignment PIN_A7 -to reset_n
 
 #============================================================

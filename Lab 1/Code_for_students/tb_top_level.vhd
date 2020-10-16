@@ -15,6 +15,7 @@ architecture tb of tb_top_level is
     component top_level
         port (clk     : in std_logic;
               reset_n : in std_logic;
+              save    : in std_logic;
               SW      : in std_logic_vector (9 downto 0);
               LEDR    : out std_logic_vector (9 downto 0);
               HEX0    : out std_logic_vector (7 downto 0);
@@ -47,6 +48,7 @@ begin
 
     dut : top_level
     port map (clk     => clk,
+              save    => KEY,
               reset_n => reset_n,
               SW      => SW,
               LEDR    => LEDR,
@@ -166,9 +168,9 @@ begin
            -- save the current display value while displaying
            -- the saved value.
            KEY <= '0';
-           wait for 100 * TbPeriod;
+           wait for 20 ms;
            KEY <= '1';
-           wait for 100 * TbPeriod;
+           wait for 20 ms;
            
            -- Reset saved value
            reset_n <= '0';
