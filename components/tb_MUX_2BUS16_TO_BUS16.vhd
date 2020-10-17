@@ -2,8 +2,8 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-ENTITY tb_MUX_2BUS8_TO1_BUS16 IS
-END tb_MUX_2BUS8_TO1_BUS16;
+ENTITY tb_MUX_2BUS16_TO1_BUS16 IS
+END tb_MUX_2BUS16_TO1_BUS16;
 
 ARCHITECTURE behavior OF tb_MUX_2BUS16_TO1_BUS16 IS
 
@@ -33,7 +33,7 @@ BEGIN
    -- Stimulus process 
    stim_process: process -- this process, in testbench/simulation code, is different than in design code
    begin
-      assert false report "MUX_2BUS8_TO1_BUS8 testbench started"; -- puts a note in the ModelSim transcript window (this line is just for convenience)
+      assert false report "MUX_2BUS16_TO1_BUS16 testbench started"; -- puts a note in the ModelSim transcript window (this line is just for convenience)
       s <= '1';
       wait for time_delay;
       in1 <= "0000000000000001"; in2 <= "1111111111111110"; 
@@ -48,7 +48,7 @@ BEGIN
          wait for time_delay;
       end loop stimloop;
       wait for 10*time_delay; -- this extends the time by 10x the time_delay, for ease of veiwing waveforms
-      assert false report "MUX2TO1 testbench completed"; -- puts a note in the ModelSim transcript window (this line is just for convenience)
+      assert false report "MUX_2BUS16_TO1_BUS16 testbench completed"; -- puts a note in the ModelSim transcript window (this line is just for convenience)
       wait; -- this wait without any time parameters just stops the simulation, otherwise it would repeat forever starting back at the top  
    end process;
 END;
