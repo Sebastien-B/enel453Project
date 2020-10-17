@@ -15,6 +15,7 @@ architecture tb of tb_top_level is
     component top_level
         port (clk     : in std_logic;
               reset_n : in std_logic;
+              save    : in std_logic;
               SW      : in std_logic_vector (9 downto 0);
               LEDR    : out std_logic_vector (9 downto 0);
               HEX0    : out std_logic_vector (7 downto 0);
@@ -27,6 +28,7 @@ architecture tb of tb_top_level is
 
     signal clk     : std_logic;
     signal reset_n : std_logic;
+    signal KEY     : std_logic;
     signal SW      : std_logic_vector (9 downto 0);
     signal LEDR    : std_logic_vector (9 downto 0);
     signal HEX0    : std_logic_vector (7 downto 0);
@@ -37,15 +39,16 @@ architecture tb of tb_top_level is
     signal HEX5    : std_logic_vector (7 downto 0);
 
     constant TbPeriod : time := 20 ns; -- EDIT Put right period here
-    signal TbClock : std_logic := '0';
+    signal TbClock    : std_logic := '0';
     signal TbSimEnded : std_logic := '0';
-    signal TbSwInput : unsigned (9 downto 0);
-    signal DecimalFlag : std_logic_vector (9 downto 0);
+    signal TbSwInput  : unsigned (9 downto 0);
+    signal Mode       : unsigned (9 downto 0);
 
 begin
 
     dut : top_level
     port map (clk     => clk,
+              save    => KEY,
               reset_n => reset_n,
               SW      => SW,
               LEDR    => LEDR,
@@ -67,35 +70,116 @@ begin
         -- EDIT Adapt initialization as needed
         SW <= (others => '0');
         TbSwInput <= (others => '0');
-        DecimalFlag <= (others => '0');
+        Mode <= (others => '0');
+        KEY <= '1';
 
         -- Reset generation
         -- EDIT: Check that reset_n is really your reset signal
-        --reset_n <= '1';
-        --wait for 100 ns;
         reset_n <= '1';
-        --wait for 100 ns;
+        wait for 100 ns;
+        reset_n <= '0';
+        wait for 100 ns;
+        reset_n <= '1';
+        wait for 100 ns;
 
         -- EDIT Add stimuli here
         wait for 100 * TbPeriod;
         
-        stimloop2 : for j in 0 to 1 loop
-           stimloop1 : for i in 0 to 255 loop
-              SW <= DecimalFlag OR std_logic_vector(TbSwInput);
-              wait for 100 ns;
-              TbSwInput <= TbSwInput + "1";
-              wait for 100 * TbPeriod;
-           end loop stimloop1;
-           wait for 900 * TbPeriod;
-           TbSwInput <= (others => '0');
-           wait for 100 ns;
-           DecimalFlag <= "1100000000"; -- Hex conversion flag still doesn't work.
-           wait for 100 ns;
+        -- Legacy test mode
+--        stimloop2 : for j in 0 to 1 loop
+--           stimloop1 : for i in 0 to 255 loop
+--              SW <= DecimalFlag OR std_logic_vector(TbSwInput);
+--              wait for 100 ns;
+--              TbSwInput <= TbSwInput + "1";
+--              wait for 100 * TbPeriod;
+--           end loop stimloop1;
+--           wait for 900 * TbPeriod;
+--           TbSwInput <= (others => '0');
+--           wait for 100 ns;
+--           DecimalFlag <= "1100000000"; -- Hex conversion flag still doesn't work.
+--           wait for 100 ns;
+--        end loop stimloop2;
+
+        -- Test BCD mode
+        stimloop1 : for i in 0 to 255 loop
+           SW <= std_logic_vector(shift_left(Mode, 8))
+                 OR std_logic_vector(TbSwInput);
+           wait for 100 * TbPeriod;
+           TbSwInput <= TbSwInput + "1";
+           wait for 100 * TbPeriod;
+           reset_n <= '0';
+           wait for 100 * TbPeriod;
+           reset_n <= '1';
+           wait for 100 * TbPeriod;
+        end loop stimloop1;
+        TbSwInput <= (others => '0');
+        wait for 2000 * TbPeriod;
+
+        -- Test hex mode
+        Mode <= "0000000001";
+        stimloop2 : for i in 0 to 255 loop
+           SW <= std_logic_vector(shift_left(Mode, 8))
+                 OR std_logic_vector(TbSwInput);
+           wait for 100 * TbPeriod;
+           TbSwInput <= TbSwInput + "1";
+           wait for 100 * TbPeriod;
         end loop stimloop2;
-        
-        
-        reset_n <= '1';
-        wait for 100 * TbPeriod;
+        TbSwInput <= (others => '0');
+        wait for 2000 * TbPeriod;
+
+        -- Test hardcoded mode
+        Mode <= "0000000010";
+        stimloop3 : for i in 0 to 255 loop
+           SW <= std_logic_vector(shift_left(Mode, 8))
+                 OR std_logic_vector(TbSwInput);
+           wait for 100 * TbPeriod;
+           TbSwInput <= TbSwInput + "1";
+           wait for 100 * TbPeriod;
+        end loop stimloop3;
+        TbSwInput <= (others => '0');
+        wait for 2000 * TbPeriod;
+
+        -- Test saved mode
+        stimloop4 : for i in 0 to 255 loop
+           -- Update (hex) display value
+           Mode <= "0000000001";
+           SW <= std_logic_vector(shift_left(Mode, 8))
+                 OR std_logic_vector(TbSwInput);
+           wait for 100 * TbPeriod;
+           
+           -- Save current display value
+           KEY <= '0';
+           wait for 100 * TbPeriod;
+           KEY <= '1';
+           wait for 100 * TbPeriod;
+           
+           -- Display saved value
+           Mode <= "0000000011";
+           wait for 100 * TbPeriod;
+           
+           -- Prove that display doesn't change when we change
+           -- switches
+           TbSwInput <= TbSwInput + "1";
+           SW <= std_logic_vector(shift_left(Mode, 8))
+                 OR std_logic_vector(TbSwInput);
+           wait for 100 * TbPeriod;
+           
+           -- Prove that saved value doesn't change when we
+           -- save the current display value while displaying
+           -- the saved value.
+           KEY <= '0';
+           wait for 20 ms;
+           KEY <= '1';
+           wait for 20 ms;
+           
+           -- Reset saved value
+           reset_n <= '0';
+           wait for 100 * TbPeriod;
+           reset_n <= '1';
+           wait for 100 * TbPeriod;  
+        end loop stimloop4;
+        TbSwInput <= (others => '0');
+        wait for 2000 * TbPeriod;
 
         -- Stop the clock and hence terminate the simulation
         TbSimEnded <= '1';
