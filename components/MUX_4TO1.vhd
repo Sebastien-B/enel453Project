@@ -15,6 +15,7 @@ architecture BEHAVIOR of MUX_4TO1 is
          mux_out <= in1 when "00", -- when s is '0' then mux_out becomes in1
                     in2 when "01",
 						  in3 when "10",
-						  in4 when "11";
+						  in4 when "11",
+						  in1 when others;
 						  
 end BEHAVIOR; -- can also be written as "end;"
