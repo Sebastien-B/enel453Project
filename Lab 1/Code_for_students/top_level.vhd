@@ -19,8 +19,13 @@ architecture Behavioral of top_level is
     Signal switch_inputs:     STD_LOGIC_VECTOR (12 downto 0);
     Signal mux_switch_inputs: STD_LOGIC_VECTOR (15 DOWNTO 0);
     Signal bcd:               STD_LOGIC_VECTOR (15 DOWNTO 0);
-    Signal mux_out:           STD_LOGIC_VECTOR (15 DOWNTO 0);
-    Signal debounce_out:      STD_LOGIC;
+    Signal mode_mux_out:      STD_LOGIC_VECTOR (15 DOWNTO 0);
+    Signal mode_mux_sel:      STD_LOGIC_VECTOR (1 DOWNTO 0);
+    Signal save_debounced:    STD_LOGIC;
+    Signal save_mux_out:      STD_LOGIC_VECTOR (15 DOWNTO 0);
+    Signal saved_7seg_input:  STD_LOGIC_VECTOR (15 DOWNTO 0);
+
+
 
     -- Component declaration
     Component SevenSegment is
@@ -53,32 +58,68 @@ architecture Behavioral of top_level is
              );
     end Component;
 
+    Component MUX_4TO1 is
+        port ( in1, in2, in3, in4   : in  std_logic_vector(15 downto 0);
+                             s      : in  std_logic_vector(1 downto 0);
+                            mux_out : out std_logic_vector(15 downto 0) -- notice no semi-colon 
+             );
+    end Component;
+    
+    Component REGISTER_BUS16 is
+        port( D : in std_logic_vector(15 downto 0);
+              CLK, RST : in std_logic;
+              Q : out std_logic_vector(15 downto 0)
+            );
+    end Component;
+
     -- Logic
     begin
-        Num_Hex0 <= mux_out(3  downto  0); 
-        Num_Hex1 <= mux_out(7  downto  4);
-        Num_Hex2 <= mux_out(11 downto  8);
-        Num_Hex3 <= mux_out(15 downto 12);
+        mode_mux_sel <= SW(9 downto 8);
+
+        Num_Hex0 <= mode_mux_out(3  downto  0); 
+        Num_Hex1 <= mode_mux_out(7  downto  4);
+        Num_Hex2 <= mode_mux_out(11 downto  8);
+        Num_Hex3 <= mode_mux_out(15 downto 12);
         Num_Hex4 <= "0000";
         Num_Hex5 <= "0000";   
-        DP_in    <= "000000"; -- position of the decimal point in the display (1=LED on,0=LED off)
+        DP_in(3 downto 0) <= "0000"; -- position of the decimal point in the display (1=LED on,0=LED off)
+        DP_in(4) <= save;
+        LEDR(8) <= save;
+        LEDR(9) <= save_debounced;
+        DP_in(5) <= save_debounced;
         Blank    <= "110000"; -- blank the 2 MSB 7-segment displays (1=7-seg display off, 0=7-seg display on)
 
-    debounce_ins: debounce
-        PORT MAP( clk => clk,
-                  reset_n => reset_n,
-                  button => save,
-                  result => debounce_out
-                );
+ --   debounce_ins: debounce
+ --       PORT MAP( clk => clk,
+ --                 reset_n => reset_n,
+ --                 button => save,
+ --                 result => save_debounced
+ --               );
 
+    MUX_4TO1_ins : MUX_4TO1
+        PORT MAP( in1     => bcd,
+                  in2     => mux_switch_inputs,
+                  in3     => "0101101001011010",
+                  in4     => saved_7seg_input,
+                  s       => mode_mux_sel,
+                  mux_out => mode_mux_out
+                );
+    
     MUX_2BUS16_TO1_BUS16_ins: MUX_2BUS16_TO1_BUS16
-        PORT MAP( in1     => mux_switch_inputs,
-                  in2     => bcd,
-                  s       => SW(9),
-                  mux_out => mux_out
+        PORT MAP( in1     => mode_mux_out,
+                  in2     => saved_7seg_input,
+                  s       => save,--_debounced,
+                  mux_out => save_mux_out
+                );
+    
+    REGISTER_BUS16_ins: REGISTER_BUS16
+        PORT MAP( D   => save_mux_out,
+                  CLK => clk,
+                  RST => reset_n,
+                  Q   => saved_7seg_input
                 );
 
-    SevenSegment_ins: SevenSegment  
+    SevenSegment_ins: SevenSegment
         PORT MAP( Num_Hex0 => Num_Hex0,
                   Num_Hex1 => Num_Hex1,
                   Num_Hex2 => Num_Hex2,
@@ -95,7 +136,7 @@ architecture Behavioral of top_level is
                   Blank    => Blank
                 );
 
-    LEDR(9 downto 0) <= SW(9 downto 0); -- gives visual display of the switch inputs to the LEDs on board
+    LEDR(7 downto 0) <= SW(7 downto 0); -- gives visual display of the switch inputs to the LEDs on board
     switch_inputs <= "00000" & SW(7 downto 0);
     mux_switch_inputs <= "00000000" & SW(7 downto 0);
 

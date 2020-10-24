@@ -142,7 +142,7 @@ begin
         -- Test saved mode
         stimloop4 : for i in 0 to 255 loop
            -- Update (hex) display value
-           Mode <= "0000000001";
+           Mode <= "0000000011";
            SW <= std_logic_vector(shift_left(Mode, 8))
                  OR std_logic_vector(TbSwInput);
            wait for 100 * TbPeriod;
