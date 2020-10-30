@@ -1,0 +1,84 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity tb_my_DFF is
+end tb_my_DFF;
+
+architecture tb of tb_my_DFF is
+
+    component my_DFF
+        port (D   : in std_logic;
+              CLK : in std_logic;
+              RST : in std_logic;
+              Q   : out std_logic);
+    end component;
+
+    signal D   : std_logic;
+    signal CLK : std_logic;
+    signal RST : std_logic;
+    signal Q   : std_logic;
+
+    constant TbPeriod : time := 1000 ns; -- EDIT Put right period here
+    signal TbClock : std_logic := '0';
+    signal TbSimEnded : std_logic := '0';
+
+begin
+
+    dut : my_DFF
+    port map (D   => D,
+              CLK => CLK,
+              RST => RST,
+              Q   => Q);
+
+    -- Clock generation
+    TbClock <= not TbClock after TbPeriod/2 when TbSimEnded /= '1' else '0';
+
+    -- EDIT: Check that CLK is really your main clock signal
+    CLK <= TbClock;
+
+    stimuli : process
+    begin
+        -- EDIT Adapt initialization as needed
+        D <= '0';
+
+        -- Reset generation
+        -- EDIT: Check that RST is really your reset signal
+        RST <= '0';
+        wait for 100 ns;
+        RST <= '1';
+        wait for 100 ns;
+        
+        -- EDIT Add stimuli here
+    
+        wait for 100 * TbPeriod;
+        
+        D <= '0';
+        
+        wait for 2* TbPeriod;
+        
+        D <= '1';
+        
+        wait for 2 * TbPeriod;
+        
+        RST <= '0';
+        
+        wait for 2 * TbPeriod;
+        
+        RST <= '1';
+        
+        wait for 2 * TbPeriod;
+        
+
+        -- Stop the clock and hence terminate the simulation
+        TbSimEnded <= '1';
+        wait;
+    end process;
+
+end tb;
+
+-- Configuration block below is required by some simulators. Usually no need to edit.
+
+configuration cfg_tb_my_DFF of tb_my_DFF is
+    for tb
+    end for;
+end cfg_tb_my_DFF;
