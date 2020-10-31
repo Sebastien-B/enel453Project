@@ -44,7 +44,7 @@ begin
     TbClock <= not TbClock after TbPeriod/2 when TbSimEnded /= '1' else '0';
 
     --  EDIT: Replace YOURCLOCKSIGNAL below by the name of your clock as I haven't guessed it
-    --CLK <= TbClock;
+    --  YOURCLOCKSIGNAL <= TbClock;
 
     stimuli : process
     begin
@@ -55,84 +55,15 @@ begin
         in4 <= (others => '0');
         s <= (others => '0');
 
+        -- Reset generation
+        --  EDIT: Replace YOURRESETSIGNAL below by the name of your reset as I haven't guessed it
+        YOURRESETSIGNAL <= '1';
+        wait for 100 ns;
+        YOURRESETSIGNAL <= '0';
+        wait for 100 ns;
 
         -- EDIT Add stimuli here
-        wait for 10 * TbPeriod;
-		  in1<="0000000000010001";
-		  wait for 10 * TbPeriod;
-		  in2<="0000000000110011";
-		  wait for 10 * TbPeriod;
-		  in3<="0000000001110111";
-		  wait for 10 * TbPeriod;
-		  in4<="0000000000001111";
-		  wait for 10 * TbPeriod;
-		  in1<="0000000011101110";
-		  wait for 10 * TbPeriod;
-		  in2<="0000000011001100";
-		  wait for 10 * TbPeriod;
-		  in3<="0000000010001000";
-		  wait for 10 * TbPeriod;
-		  in4<="0000000011110000";
-		  wait for 20*TbPeriod;
-		  
-		  
-		  s<="01";
-        wait for 10 * TbPeriod;
-		  in1<="0000000000010001";
-		  wait for 10 * TbPeriod;
-		  in2<="0000000000110011";
-		  wait for 10 * TbPeriod;
-		  in3<="0000000001110111";
-		  wait for 10 * TbPeriod;
-		  in4<="0000000000001111";
-		  wait for 10 * TbPeriod;
-		  in1<="0000000011101110";
-		  wait for 10 * TbPeriod;
-		  in2<="0000000011001100";
-		  wait for 10 * TbPeriod;
-		  in3<="0000000010001000";
-		  wait for 10 * TbPeriod;
-		  in4<="0000000011110000";
-		  wait for 20*TbPeriod;
-		  
-		  s<="10";
-        wait for 10 * TbPeriod;
-		  in1<="0000000000010001";
-		  wait for 10 * TbPeriod;
-		  in2<="0000000000110011";
-		  wait for 10 * TbPeriod;
-		  in3<="0000000001110111";
-		  wait for 10 * TbPeriod;
-		  in4<="0000000000001111";
-		  wait for 10 * TbPeriod;
-		  in1<="0000000011101110";
-		  wait for 10 * TbPeriod;
-		  in2<="0000000011001100";
-		  wait for 10 * TbPeriod;
-		  in3<="0000000010001000";
-		  wait for 10 * TbPeriod;
-		  in4<="0000000011110000";
-		  wait for 20*TbPeriod;
-		  
-		  s<="11";
-        wait for 10 * TbPeriod;
-		  in1<="0000000000010001";
-		  wait for 10 * TbPeriod;
-		  in2<="0000000000110011";
-		  wait for 10 * TbPeriod;
-		  in3<="0000000001110111";
-		  wait for 10 * TbPeriod;
-		  in4<="0000000000001111";
-		  wait for 10 * TbPeriod;
-		  in1<="0000000011101110";
-		  wait for 10 * TbPeriod;
-		  in2<="0000000011001100";
-		  wait for 10 * TbPeriod;
-		  in3<="0000000010001000";
-		  wait for 10 * TbPeriod;
-		  in4<="0000000011110000";
-		  wait for 20*TbPeriod;
-		  
+        wait for 100 * TbPeriod;
 
         -- Stop the clock and hence terminate the simulation
         TbSimEnded <= '1';
