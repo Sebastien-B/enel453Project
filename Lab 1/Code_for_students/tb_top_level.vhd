@@ -100,83 +100,78 @@ begin
 --           wait for 100 ns;
 --        end loop stimloop2;
 
-        -- Test BCD mode
+        -- Test voltage in decimal mode
         stimloop1 : for i in 0 to 255 loop
            SW <= std_logic_vector(shift_left(Mode, 8))
                  OR std_logic_vector(TbSwInput);
            wait for 100 * TbPeriod;
            TbSwInput <= TbSwInput + "1";
-           wait for 100 * TbPeriod;
-           reset_n <= '0';
-           wait for 100 * TbPeriod;
-           reset_n <= '1';
+           -- Test freezing input.
+           -- We expect only even numbers to show up on the input.
+           if (TbSwInput[2] = '1') then
+               KEY <= '1';
+           else
+               KEY <= '0';
+           end if;
            wait for 100 * TbPeriod;
         end loop stimloop1;
         TbSwInput <= (others => '0');
         wait for 2000 * TbPeriod;
 
-        -- Test hex mode
+        -- Test distance in decimal mode
         Mode <= "0000000001";
         stimloop2 : for i in 0 to 255 loop
            SW <= std_logic_vector(shift_left(Mode, 8))
                  OR std_logic_vector(TbSwInput);
            wait for 100 * TbPeriod;
            TbSwInput <= TbSwInput + "1";
+           -- Test freezing input.
+           -- We expect only even numbers to show up on the input.
+           if (TbSwInput[2] = '1') then
+               KEY <= '1';
+           else
+               KEY <= '0';
+           end if;
            wait for 100 * TbPeriod;
         end loop stimloop2;
         TbSwInput <= (others => '0');
         wait for 2000 * TbPeriod;
 
-        -- Test hardcoded mode
+        -- Test raw ADC 256 sample moving average
         Mode <= "0000000010";
         stimloop3 : for i in 0 to 255 loop
            SW <= std_logic_vector(shift_left(Mode, 8))
                  OR std_logic_vector(TbSwInput);
            wait for 100 * TbPeriod;
            TbSwInput <= TbSwInput + "1";
+           -- Test freezing input.
+           -- We expect only even numbers to show up on the input.
+           if (TbSwInput[2] = '1') then
+               KEY <= '1';
+           else
+               KEY <= '0';
+           end if;
            wait for 100 * TbPeriod;
         end loop stimloop3;
         TbSwInput <= (others => '0');
         wait for 2000 * TbPeriod;
 
-        -- Test saved mode
+        -- Test switch input
         stimloop4 : for i in 0 to 255 loop
-           -- Update (hex) display value
-           Mode <= "0000000011";
+           -- Update switch input
            SW <= std_logic_vector(shift_left(Mode, 8))
                  OR std_logic_vector(TbSwInput);
            wait for 100 * TbPeriod;
-           
-           -- Save current display value
-           KEY <= '0';
-           wait for 100 * TbPeriod;
-           KEY <= '1';
-           wait for 100 * TbPeriod;
-           
-           -- Display saved value
-           Mode <= "0000000011";
-           wait for 100 * TbPeriod;
-           
-           -- Prove that display doesn't change when we change
-           -- switches
+           -- Increment switch input
            TbSwInput <= TbSwInput + "1";
-           SW <= std_logic_vector(shift_left(Mode, 8))
-                 OR std_logic_vector(TbSwInput);
+           -- Test freezing input.
+           -- We expect only even numbers to show up on the input.
+           if (TbSwInput[0] = '1') then
+               KEY <= '1';
+           else
+               KEY <= '0';
+           end if;
            wait for 100 * TbPeriod;
-           
-           -- Prove that saved value doesn't change when we
-           -- save the current display value while displaying
-           -- the saved value.
-           KEY <= '0';
-           wait for 20 ms;
-           KEY <= '1';
-           wait for 20 ms;
-           
-           -- Reset saved value
-           reset_n <= '0';
-           wait for 100 * TbPeriod;
-           reset_n <= '1';
-           wait for 100 * TbPeriod;  
         end loop stimloop4;
         TbSwInput <= (others => '0');
         wait for 2000 * TbPeriod;
