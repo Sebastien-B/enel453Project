@@ -19,16 +19,32 @@ architecture Behavioral of top_level is
     Signal switch_synced:     STD_LOGIC_VECTOR (9 downto 0);
     Signal switch_inputs:     STD_LOGIC_VECTOR (12 downto 0);
     Signal mux_switch_inputs: STD_LOGIC_VECTOR (15 DOWNTO 0);
+    Signal mux_adc_avg_input: STD_LOGIC_VECTOR (15 DOWNTO 0);
     Signal bcd:               STD_LOGIC_VECTOR (15 DOWNTO 0);
     Signal mode_mux_out:      STD_LOGIC_VECTOR (15 DOWNTO 0);
     Signal mode_mux_sel:      STD_LOGIC_VECTOR (1 DOWNTO 0);
     Signal save_debounced:    STD_LOGIC;
     Signal save_mux_out:      STD_LOGIC_VECTOR (15 DOWNTO 0);
     Signal saved_7seg_input:  STD_LOGIC_VECTOR (15 DOWNTO 0);
+    Signal ADC_Data_voltage_out:  STD_LOGIC_VECTOR (12 downto 0); -- Voltage in milli-volts
+    Signal ADC_Data_distance_out: STD_LOGIC_VECTOR (12 downto 0); -- distance in 10^-4 cm (e.g. if distance = 33 cm, then 3300 is the value)
+    Signal ADC_Data_raw_out:      STD_LOGIC_VECTOR (11 downto 0); -- the latest 12-bit ADC value
+    Signal ADC_Data_avg_out:      STD_LOGIC_VECTOR (11 downto 0); -- moving average of ADC value, over 256 samples
 
 
 
     -- Component declaration
+
+    Component ADC_Data is
+        Port( clk      : in STD_LOGIC;
+              reset_n  : in STD_LOGIC; -- active-low
+              voltage  : out STD_LOGIC_VECTOR (12 downto 0); -- Voltage in milli-volts
+              distance : out STD_LOGIC_VECTOR (12 downto 0); -- distance in 10^-4 cm (e.g. if distance = 33 cm, then 3300 is the value)
+              ADC_raw  : out STD_LOGIC_VECTOR (11 downto 0); -- the latest 12-bit ADC value
+              ADC_out  : out STD_LOGIC_VECTOR (11 downto 0)  -- moving average of ADC value, over 256 samples
+            );
+    End Component;
+
     Component SevenSegment is
         Port ( Num_Hex0,Num_Hex1,Num_Hex2,Num_Hex3,Num_Hex4,Num_Hex5 : in  STD_LOGIC_VECTOR (3 downto 0);
                Hex0,Hex1,Hex2,Hex3,Hex4,Hex5                         : out STD_LOGIC_VECTOR (7 downto 0);
@@ -92,6 +108,15 @@ architecture Behavioral of top_level is
         DP_in(5 downto 0) <= "000000"; -- position of the decimal point in the display (1=LED on,0=LED off)
         Blank    <= "110000"; -- blank the 2 MSB 7-segment displays (1=7-seg display off, 0=7-seg display on)
 
+    ADC_Data_ins: ADC_Data
+        PORT MAP ( clk => clk,
+                   reset_n => reset_n, -- active low
+                   voltage => ADC_Data_voltage_out, -- Voltage in milli-volts
+                   distance => ADC_Data_distance_out, -- distance in 10^-4 cm (e.g. if distance = 33 cm, then 3300 is the value)
+                   ADC_raw => ADC_Data_raw_out, -- the latest 12-bit ADC value
+                   ADC_out => ADC_Data_avg_out  -- moving average of ADC value, over 256 samples
+                 );
+
     debounce_ins: debounce
         PORT MAP( clk => clk,
                   reset_n => reset_n,
@@ -102,7 +127,7 @@ architecture Behavioral of top_level is
     MUX_4TO1_ins : MUX_4TO1
         PORT MAP( in1     => bcd,
                   in2     => mux_switch_inputs,
-                  in3     => "0101101001011010",
+                  in3     => mux_adc_avg_input,
                   in4     => saved_7seg_input,
                   s       => mode_mux_sel,
                   mux_out => mode_mux_out
@@ -143,19 +168,19 @@ architecture Behavioral of top_level is
        PORT MAP( s        => SW(9 downto 0),
                  CLK      => clk,
                  sync_out => switch_synced
-                -- x        => 
                );
 
     LEDR(9 downto 0) <= switch_synced(9 downto 0); -- gives visual display of the switch inputs to the LEDs on board
     switch_inputs <= "00000" & switch_synced(7 downto 0);
     mux_switch_inputs <= "00000000" & switch_synced(7 downto 0);
+    mux_adc_avg_input <= "0000" & ADC_Data_avg_out(11 downto 0);
     mode_mux_sel <= switch_synced(9 downto 8);
 
-    binary_bcd_ins: binary_bcd                               
+    binary_bcd_ins: binary_bcd
         PORT MAP(
-                  clk      => clk,                          
-                  reset_n  => reset_n,                                 
-                  binary   => switch_inputs,    
-                  bcd      => bcd         
+                  clk      => clk,
+                  reset_n  => reset_n,
+                  binary   => switch_inputs,
+                  bcd      => bcd
                 );
 end Behavioral;
