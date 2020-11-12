@@ -74,6 +74,15 @@ architecture Behavioral of top_level is
                mux_out : out std_logic_vector(15 downto 0) -- notice no semi-colon 
              );
     end Component;
+    
+    Component MUX_2BUS13_TO1_BUS13 is
+        port ( in1     : in  std_logic_vector(12 downto 0);
+               in2     : in  std_logic_vector(12 downto 0);
+               s       : in  std_logic;
+               mux_out : out std_logic_vector(12 downto 0) -- notice no semi-colon 
+             );
+    end Component;
+
 
     Component MUX_4TO1 is
         port ( in1, in2, in3, in4   : in  std_logic_vector(15 downto 0);
@@ -84,7 +93,7 @@ architecture Behavioral of top_level is
 
     Component REGISTER_BUS16 is
         port ( D : in std_logic_vector(15 downto 0);
-               CLK, RST : in std_logic;
+               CLK, RST, ENABLE : in std_logic;
                Q : out std_logic_vector(15 downto 0)
              );
     end Component;
@@ -99,10 +108,10 @@ architecture Behavioral of top_level is
 
     -- Logic
     begin
-        Num_Hex0 <= mode_mux_out(3  downto  0); 
-        Num_Hex1 <= mode_mux_out(7  downto  4);
-        Num_Hex2 <= mode_mux_out(11 downto  8);
-        Num_Hex3 <= mode_mux_out(15 downto 12);
+        Num_Hex0 <= saved_7seg_input(3  downto  0); 
+        Num_Hex1 <= saved_7seg_input(7  downto  4);
+        Num_Hex2 <= saved_7seg_input(11 downto  8);
+        Num_Hex3 <= saved_7seg_input(15 downto 12);
         Num_Hex4 <= "0000";
         Num_Hex5 <= "0000";   
         DP_in(5 downto 0) <= "000000"; -- position of the decimal point in the display (1=LED on,0=LED off)
@@ -128,22 +137,16 @@ architecture Behavioral of top_level is
         PORT MAP( in1     => bcd,
                   in2     => mux_switch_inputs,
                   in3     => mux_adc_avg_input,
-                  in4     => saved_7seg_input,
+                  in4     => "0101101001011010",
                   s       => mode_mux_sel,
                   mux_out => mode_mux_out
                 );
-    
-    MUX_2BUS16_TO1_BUS16_ins: MUX_2BUS16_TO1_BUS16
-        PORT MAP( in1     => mode_mux_out,
-                  in2     => saved_7seg_input,
-                  s       => save_debounced,
-                  mux_out => save_mux_out
-                );
-    
+
     REGISTER_BUS16_ins: REGISTER_BUS16
-        PORT MAP( D   => save_mux_out,
+        PORT MAP( D   => mode_mux_out,
                   CLK => clk,
                   RST => reset_n,
+                  ENABLE => NOT save_debounced,
                   Q   => saved_7seg_input
                 );
 
