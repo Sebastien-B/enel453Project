@@ -16,7 +16,7 @@ begin
                 if RST = '0' then
                     Q <= '0';
                 elsif rising_edge(CLK) then
-                    if ENABLE = '0' then
+                    if ENABLE = '1' then
                         Q <= D;
                     end if;
                 end if;

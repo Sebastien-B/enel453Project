@@ -84,6 +84,13 @@ architecture Behavioral of top_level is
              );
     end Component;
 
+    Component MUX_4TO1_BUS6 is
+        port ( in1, in2, in3, in4   : in  std_logic_vector(5 downto 0);
+                             s      : in  std_logic_vector(1 downto 0);
+                            mux_out : out std_logic_vector(5 downto 0) -- notice no semi-colon 
+             );
+    end Component;
+
     Component REGISTER_BUS16 is
         port ( D : in std_logic_vector(15 downto 0);
                CLK, RST, ENABLE : in std_logic;
@@ -107,7 +114,6 @@ architecture Behavioral of top_level is
         Num_Hex3 <= saved_7seg_input(15 downto 12);
         Num_Hex4 <= "0000";
         Num_Hex5 <= "0000";   
-        DP_in(5 downto 0) <= "000000"; -- position of the decimal point in the display (1=LED on,0=LED off)
         Blank    <= "110000"; -- blank the 2 MSB 7-segment displays (1=7-seg display off, 0=7-seg display on)
 
     ADC_Data_ins: ADC_Data
@@ -126,7 +132,7 @@ architecture Behavioral of top_level is
                   result => save_debounced
                 );
 
-    MUX_4TO1_ins : MUX_4TO1
+    mode_mux_ins : MUX_4TO1
         PORT MAP( in1     => mux_switch_inputs,
                   in2     => "0000" & ADC_Data_avg_out,
                   in3     => adc_avg_bcd_out,
@@ -139,7 +145,7 @@ architecture Behavioral of top_level is
         PORT MAP( D   => mode_mux_out,
                   CLK => clk,
                   RST => reset_n,
-                  ENABLE => NOT save_debounced,
+                  ENABLE => save_debounced,
                   Q   => saved_7seg_input
                 );
 
@@ -158,6 +164,15 @@ architecture Behavioral of top_level is
                   Hex5     => Hex5,
                   DP_in    => DP_in,
                   Blank    => Blank
+                );
+
+    DP_mux_ins : MUX_4TO1_BUS6
+        PORT MAP( in1     => "000000",-- mux_switch_inputs,
+                  in2     => "000000", -- "0000" & ADC_Data_avg_out,
+                  in3     => "001000",-- adc_avg_bcd_out,
+                  in4     => "000100",-- distance_bcd_out,
+                  s       => mode_mux_sel,
+                  mux_out => DP_in
                 );
 
     sync_ins: sync
