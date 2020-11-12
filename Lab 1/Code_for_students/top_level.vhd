@@ -31,7 +31,7 @@ architecture Behavioral of top_level is
     Signal ADC_Data_raw_out:      STD_LOGIC_VECTOR (11 downto 0); -- the latest 12-bit ADC value
     Signal ADC_Data_avg_out:      STD_LOGIC_VECTOR (11 downto 0); -- moving average of ADC value, over 256 samples
     Signal distance_bcd_out:      STD_LOGIC_VECTOR (15 DOWNTO 0);
-    Signal adc_avg_bcd_out:       STD_LOGIC_VECTOR (15 DOWNTO 0);
+    Signal voltage_bcd_out:       STD_LOGIC_VECTOR (15 DOWNTO 0);
 
 
 
@@ -105,6 +105,14 @@ architecture Behavioral of top_level is
                x: inout std_logic_vector(9 downto 0)
              );
     end Component;
+    
+    Component digit_blanker is
+        port ( NUM_HEX0, NUM_HEX1, NUM_HEX2, NUM_HEX3, NUM_HEX4, NUM_HEX5: in std_logic_vector(3 downto 0);
+               DP:     in std_logic_vector(5 downto 0);
+               enable: in std_logic;
+               blank:  buffer std_logic_vector(5 downto 0)
+             );
+    end Component;
 
     -- Logic
     begin
@@ -114,9 +122,21 @@ architecture Behavioral of top_level is
         Num_Hex3 <= saved_7seg_input(15 downto 12);
         Num_Hex4 <= "0000";
         Num_Hex5 <= "0000";   
-        Blank    <= "110000"; -- blank the 2 MSB 7-segment displays (1=7-seg display off, 0=7-seg display on)
+        --Blank    <= "110000"; -- blank the 2 MSB 7-segment displays (1=7-seg display off, 0=7-seg display on)
 
-    ADC_Data_ins: ADC_Data
+        digit_blanker_ins: digit_blanker
+        PORT MAP ( NUM_HEX0 => NUM_HEX0,
+                   NUM_HEX1 => NUM_HEX1,
+                   NUM_HEX2 => NUM_HEX2,
+                   NUM_HEX3 => NUM_HEX3,
+                   NUM_HEX4 => NUM_HEX4,
+                   NUM_HEX5 => NUM_HEX5,
+                   DP => DP_in,
+                   enable => SW(9),
+                   blank => Blank
+                 );
+
+        ADC_Data_ins: ADC_Data
         PORT MAP ( clk => clk,
                    reset_n => reset_n, -- active low
                    voltage => ADC_Data_voltage_out, -- Voltage in milli-volts
@@ -135,7 +155,7 @@ architecture Behavioral of top_level is
     mode_mux_ins : MUX_4TO1
         PORT MAP( in1     => mux_switch_inputs,
                   in2     => "0000" & ADC_Data_avg_out,
-                  in3     => adc_avg_bcd_out,
+                  in3     => voltage_bcd_out,
                   in4     => distance_bcd_out,
                   s       => mode_mux_sel,
                   mux_out => mode_mux_out
@@ -189,8 +209,8 @@ architecture Behavioral of top_level is
         PORT MAP(
                   clk      => clk,
                   reset_n  => reset_n,
-                  binary   => '0' & ADC_Data_avg_out,
-                  bcd      => adc_avg_bcd_out
+                  binary   => ADC_Data_voltage_out,
+                  bcd      => voltage_bcd_out
                 );
 
     distance_binary_bcd_ins: binary_bcd
