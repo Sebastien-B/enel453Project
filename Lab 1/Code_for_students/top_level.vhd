@@ -30,6 +30,8 @@ architecture Behavioral of top_level is
     Signal ADC_Data_distance_out: STD_LOGIC_VECTOR (12 downto 0); -- distance in 10^-4 cm (e.g. if distance = 33 cm, then 3300 is the value)
     Signal ADC_Data_raw_out:      STD_LOGIC_VECTOR (11 downto 0); -- the latest 12-bit ADC value
     Signal ADC_Data_avg_out:      STD_LOGIC_VECTOR (11 downto 0); -- moving average of ADC value, over 256 samples
+    Signal distance_bcd_out:      STD_LOGIC_VECTOR (15 DOWNTO 0);
+    Signal adc_avg_bcd_out:       STD_LOGIC_VECTOR (15 DOWNTO 0);
 
 
 
@@ -74,15 +76,6 @@ architecture Behavioral of top_level is
                mux_out : out std_logic_vector(15 downto 0) -- notice no semi-colon 
              );
     end Component;
-    
-    Component MUX_2BUS13_TO1_BUS13 is
-        port ( in1     : in  std_logic_vector(12 downto 0);
-               in2     : in  std_logic_vector(12 downto 0);
-               s       : in  std_logic;
-               mux_out : out std_logic_vector(12 downto 0) -- notice no semi-colon 
-             );
-    end Component;
-
 
     Component MUX_4TO1 is
         port ( in1, in2, in3, in4   : in  std_logic_vector(15 downto 0);
@@ -134,10 +127,10 @@ architecture Behavioral of top_level is
                 );
 
     MUX_4TO1_ins : MUX_4TO1
-        PORT MAP( in1     => bcd,
-                  in2     => mux_switch_inputs,
-                  in3     => mux_adc_avg_input,
-                  in4     => "0101101001011010",
+        PORT MAP( in1     => mux_switch_inputs,
+                  in2     => "0000" & ADC_Data_avg_out,
+                  in3     => adc_avg_bcd_out,
+                  in4     => distance_bcd_out,
                   s       => mode_mux_sel,
                   mux_out => mode_mux_out
                 );
@@ -174,16 +167,23 @@ architecture Behavioral of top_level is
                );
 
     LEDR(9 downto 0) <= switch_synced(9 downto 0); -- gives visual display of the switch inputs to the LEDs on board
-    switch_inputs <= "00000" & switch_synced(7 downto 0);
     mux_switch_inputs <= "00000000" & switch_synced(7 downto 0);
-    mux_adc_avg_input <= "0000" & ADC_Data_avg_out(11 downto 0);
     mode_mux_sel <= switch_synced(9 downto 8);
 
-    binary_bcd_ins: binary_bcd
+    adc_avg_binary_bcd_ins: binary_bcd
         PORT MAP(
                   clk      => clk,
                   reset_n  => reset_n,
-                  binary   => switch_inputs,
-                  bcd      => bcd
+                  binary   => '0' & ADC_Data_avg_out,
+                  bcd      => adc_avg_bcd_out
                 );
+
+    distance_binary_bcd_ins: binary_bcd
+        PORT MAP(
+                  clk      => clk,
+                  reset_n  => reset_n,
+                  binary   => ADC_Data_distance_out,
+                  bcd      => distance_bcd_out
+                );
+
 end Behavioral;
