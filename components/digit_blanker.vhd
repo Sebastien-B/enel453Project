@@ -19,27 +19,27 @@ begin
             else
                 blank(5) <= '0';
             end if;
-            if NUM_HEX4 = "0000" and blank(5) = '1' and DP(5) = '0' then
+            if NUM_HEX4 = "0000" and blank(5) = '1' and DP(4) = '0' then
                 blank(4) <= '1'; 
             else
                 blank(4) <= '0';
             end if;
-            if NUM_HEX3 = "0000" and blank(4) = '1' and DP(5) = '0' then
+            if NUM_HEX3 = "0000" and blank(4) = '1' and DP(3) = '0' then
                 blank(3) <= '1'; 
             else
                 blank(3) <= '0';
             end if;
-            if NUM_HEX2 = "0000" and blank(3) = '1' and DP(5) = '0' then
+            if NUM_HEX2 = "0000" and blank(3) = '1' and DP(2) = '0' then
                 blank(2) <= '1'; 
             else
                 blank(2) <= '0';
             end if;
-            if NUM_HEX1 = "0000" and blank(2) = '1' and DP(5) = '0' then
+            if NUM_HEX1 = "0000" and blank(2) = '1' and DP(1) = '0' then
                 blank(1) <= '1'; 
             else
                 blank(1) <= '0';
             end if;
-            if NUM_HEX0 = "0000" and blank(1) = '1' and DP(5) = '0' then
+            if NUM_HEX0 = "0000" and blank(1) = '1' and DP(0) = '0' then
                 blank(0) <= '1'; 
             else
                 blank(0) <= '0';
