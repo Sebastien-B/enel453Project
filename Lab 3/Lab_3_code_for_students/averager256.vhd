@@ -63,13 +63,32 @@ begin
       end if;
    end process shift_reg;
    
-   LoopB1: for i in 1 to (2**N)/2 generate
-      tmp(i) <= to_integer(unsigned(REG_ARRAY((2*i)-1)))  + to_integer(unsigned(REG_ARRAY(2*i)));
-   end generate LoopB1;
    
-   LoopB2: for i in ((2**N)/2)+1 to (2**N)-1 generate
-      tmp(i) <= tmp(2*(i-(2**N)/2)-1) + tmp(2*(i-(2**N)/2));
-   end generate LoopB2;
+   add_reg : process(clk, reset_n)
+   begin
+      if (reset_n = '0') then
+         LoopB4: for i in 1 to (2**N)/2 loop
+            tmp(i) <= 0;
+         end loop LoopB4;
+      elsif (rising_edge(clk)) then
+         LoopB1: for i in 1 to (2**N)/2 loop
+            tmp(i) <= to_integer(unsigned(REG_ARRAY((2*i)-1)))  + to_integer(unsigned(REG_ARRAY(2*i)));
+         end loop LoopB1;
+      end if;
+   end process add_reg;
+   
+   avg_reg : process(clk, reset_n)
+   begin
+      if (reset_n = '0') then
+         LoopB3: for i in ((2**N)/2)+1 to (2**N)-1 loop
+            tmp(i) <= 0;
+         end loop LoopB3;
+      elsif (rising_edge(clk)) then
+         LoopB2: for i in ((2**N)/2)+1 to (2**N)-1 loop -- average them down.
+            tmp(i) <= tmp(2*(i-(2**N)/2)-1) + tmp(2*(i-(2**N)/2));
+         end loop LoopB2;
+      end if;
+   end process avg_reg;
    
    tmplast <= std_logic_vector(to_unsigned(tmp((2**N)-1), tmplast'length));
       
