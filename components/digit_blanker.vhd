@@ -4,7 +4,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity digit_blanker is
     port (NUM_HEX0, NUM_HEX1, NUM_HEX2, NUM_HEX3, NUM_HEX4, NUM_HEX5: in std_logic_vector(3 downto 0);
           DP:     in std_logic_vector(5 downto 0);
-          enable: in std_logic;
+          enable: in std_logic_vector(1 downto 0);
           blank:  buffer std_logic_vector(5 downto 0)
          );
 end digit_blanker;
@@ -13,7 +13,7 @@ architecture BEHAV of digit_blanker is
 begin
     process (NUM_HEX0, NUM_HEX1, NUM_HEX2, NUM_HEX3, NUM_HEX4, NUM_HEX5, DP, enable)
     begin
-        if (enable = '1') then
+        if (enable(0) = '1' or enable(1) = '1') then
             if NUM_HEX5 = "0000" and DP(5) = '0' then
                 blank(5) <= '1'; 
             else

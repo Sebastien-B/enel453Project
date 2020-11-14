@@ -109,7 +109,7 @@ architecture Behavioral of top_level is
     Component digit_blanker is
         port ( NUM_HEX0, NUM_HEX1, NUM_HEX2, NUM_HEX3, NUM_HEX4, NUM_HEX5: in std_logic_vector(3 downto 0);
                DP:     in std_logic_vector(5 downto 0);
-               enable: in std_logic;
+               enable: in std_logic_vector(1 downto 0);
                blank:  buffer std_logic_vector(5 downto 0)
              );
     end Component;
@@ -132,7 +132,7 @@ architecture Behavioral of top_level is
                    NUM_HEX4 => NUM_HEX4,
                    NUM_HEX5 => NUM_HEX5,
                    DP => DP_in,
-                   enable => SW(9),
+                   enable => SW(9 downto 8),
                    blank => Blank
                  );
 

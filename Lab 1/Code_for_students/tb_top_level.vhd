@@ -108,7 +108,7 @@ begin
            TbSwInput <= TbSwInput + "1";
            -- Test freezing input.
            -- We expect only even numbers to show up on the input.
-           if (TbSwInput[2] = '1') then
+           if (TbSwInput(2) = '1') then
                KEY <= '1';
            else
                KEY <= '0';
@@ -127,7 +127,7 @@ begin
            TbSwInput <= TbSwInput + "1";
            -- Test freezing input.
            -- We expect only even numbers to show up on the input.
-           if (TbSwInput[2] = '1') then
+           if (TbSwInput(2) = '1') then
                KEY <= '1';
            else
                KEY <= '0';
@@ -146,7 +146,7 @@ begin
            TbSwInput <= TbSwInput + "1";
            -- Test freezing input.
            -- We expect only even numbers to show up on the input.
-           if (TbSwInput[2] = '1') then
+           if (TbSwInput(2) = '1') then
                KEY <= '1';
            else
                KEY <= '0';
@@ -166,7 +166,7 @@ begin
            TbSwInput <= TbSwInput + "1";
            -- Test freezing input.
            -- We expect only even numbers to show up on the input.
-           if (TbSwInput[0] = '1') then
+           if (TbSwInput(0) = '1') then
                KEY <= '1';
            else
                KEY <= '0';
