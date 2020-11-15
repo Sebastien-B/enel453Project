@@ -69,14 +69,6 @@ architecture Behavioral of top_level is
               result  : OUT STD_LOGIC); --debounced signal
     END Component;
 
-    Component MUX_2BUS16_TO1_BUS16 is
-        port ( in1     : in  std_logic_vector(15 downto 0);
-               in2     : in  std_logic_vector(15 downto 0);
-               s       : in  std_logic;
-               mux_out : out std_logic_vector(15 downto 0) -- notice no semi-colon 
-             );
-    end Component;
-
     Component MUX_4TO1 is
         port ( in1, in2, in3, in4   : in  std_logic_vector(15 downto 0);
                              s      : in  std_logic_vector(1 downto 0);
@@ -132,7 +124,7 @@ architecture Behavioral of top_level is
                    NUM_HEX4 => NUM_HEX4,
                    NUM_HEX5 => NUM_HEX5,
                    DP => DP_in,
-                   enable => SW(9 downto 8),
+                   enable => switch_synced(9 downto 8),
                    blank => Blank
                  );
 
