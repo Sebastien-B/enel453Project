@@ -22,6 +22,7 @@ architecture Behavioral of top_level is
     Signal mux_adc_avg_input: STD_LOGIC_VECTOR (15 DOWNTO 0);
     Signal bcd:               STD_LOGIC_VECTOR (15 DOWNTO 0);
     Signal mode_mux_out:      STD_LOGIC_VECTOR (15 DOWNTO 0);
+    Signal ADC_Data_avg_out_16_wide: STD_LOGIC_VECTOR (15 DOWNTO 0);
     Signal mode_mux_sel:      STD_LOGIC_VECTOR (1 DOWNTO 0);
     Signal save_debounced:    STD_LOGIC;
     Signal save_mux_out:      STD_LOGIC_VECTOR (15 DOWNTO 0);
@@ -32,8 +33,6 @@ architecture Behavioral of top_level is
     Signal ADC_Data_avg_out:      STD_LOGIC_VECTOR (11 downto 0); -- moving average of ADC value, over 256 samples
     Signal distance_bcd_out:      STD_LOGIC_VECTOR (15 DOWNTO 0);
     Signal voltage_bcd_out:       STD_LOGIC_VECTOR (15 DOWNTO 0);
-
-
 
     -- Component declaration
 
@@ -146,12 +145,15 @@ architecture Behavioral of top_level is
 
     mode_mux_ins : MUX_4TO1
         PORT MAP( in1     => mux_switch_inputs,
-                  in2     => "0000" & ADC_Data_avg_out,
+                  -- in2     => "0000" & ADC_Data_avg_out,
+                  in2     => ADC_Data_avg_out_16_wide,
                   in3     => voltage_bcd_out,
                   in4     => distance_bcd_out,
                   s       => mode_mux_sel,
                   mux_out => mode_mux_out
                 );
+
+    ADC_Data_avg_out_16_wide <= "0000" & ADC_Data_avg_out;
 
     REGISTER_BUS16_ins: REGISTER_BUS16
         PORT MAP( D   => mode_mux_out,
