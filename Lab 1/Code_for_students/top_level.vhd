@@ -153,7 +153,7 @@ architecture Behavioral of top_level is
                   mux_out => mode_mux_out
                 );
 
-    ADC_Data_avg_out_16_wide <= "0000" & ADC_Data_avg_out;
+    git <= "0000" & ADC_Data_avg_out;
 
     REGISTER_BUS16_ins: REGISTER_BUS16
         PORT MAP( D   => mode_mux_out,
