@@ -39,6 +39,7 @@ architecture tb of tb_top_level is
     signal HEX5    : std_logic_vector (7 downto 0);
 
     constant TbPeriod : time := 20 ns; -- EDIT Put right period here
+    constant TbWait   : integer := 50000;
     signal TbClock    : std_logic := '0';
     signal TbSimEnded : std_logic := '0';
     signal TbSwInput  : unsigned (9 downto 0);
@@ -83,7 +84,7 @@ begin
         wait for 100 ns;
 
         -- EDIT Add stimuli here
-        wait for 100 * TbPeriod;
+        wait for TbWait * TbPeriod;
         
         -- Legacy test mode
 --        stimloop2 : for j in 0 to 1 loop
@@ -104,7 +105,7 @@ begin
         stimloop1 : for i in 0 to 255 loop
            SW <= std_logic_vector(shift_left(Mode, 8))
                  OR std_logic_vector(TbSwInput);
-           wait for 100 * TbPeriod;
+           wait for TbWait * TbPeriod;
            TbSwInput <= TbSwInput + "1";
            -- Test freezing input.
            -- We expect only even numbers to show up on the input.
@@ -113,17 +114,17 @@ begin
            else
                KEY <= '0';
            end if;
-           wait for 100 * TbPeriod;
+           wait for TbWait * TbPeriod;
         end loop stimloop1;
         TbSwInput <= (others => '0');
-        wait for 2000 * TbPeriod;
+        wait for 20*TbWait * TbPeriod;
 
         -- Test distance in decimal mode
         Mode <= "0000000001";
         stimloop2 : for i in 0 to 255 loop
            SW <= std_logic_vector(shift_left(Mode, 8))
                  OR std_logic_vector(TbSwInput);
-           wait for 100 * TbPeriod;
+           wait for TbWait * TbPeriod;
            TbSwInput <= TbSwInput + "1";
            -- Test freezing input.
            -- We expect only even numbers to show up on the input.
@@ -132,17 +133,17 @@ begin
            else
                KEY <= '0';
            end if;
-           wait for 100 * TbPeriod;
+           wait for TbWait * TbPeriod;
         end loop stimloop2;
         TbSwInput <= (others => '0');
-        wait for 2000 * TbPeriod;
+        wait for 20 * TbWait * TbPeriod;
 
         -- Test raw ADC 256 sample moving average
         Mode <= "0000000010";
         stimloop3 : for i in 0 to 255 loop
            SW <= std_logic_vector(shift_left(Mode, 8))
                  OR std_logic_vector(TbSwInput);
-           wait for 100 * TbPeriod;
+           wait for TbWait * TbPeriod;
            TbSwInput <= TbSwInput + "1";
            -- Test freezing input.
            -- We expect only even numbers to show up on the input.
@@ -151,30 +152,30 @@ begin
            else
                KEY <= '0';
            end if;
-           wait for 100 * TbPeriod;
+           wait for TbWait * TbPeriod;
         end loop stimloop3;
         TbSwInput <= (others => '0');
-        wait for 2000 * TbPeriod;
+        wait for 20 * TbWait * TbPeriod;
 
         -- Test switch input
         stimloop4 : for i in 0 to 255 loop
            -- Update switch input
            SW <= std_logic_vector(shift_left(Mode, 8))
                  OR std_logic_vector(TbSwInput);
-           wait for 100 * TbPeriod;
+           wait for TbWait * TbPeriod;
            -- Increment switch input
            TbSwInput <= TbSwInput + "1";
            -- Test freezing input.
            -- We expect only even numbers to show up on the input.
-           if (TbSwInput(0) = '1') then
+           if (TbSwInput(2) = '1') then
                KEY <= '1';
            else
                KEY <= '0';
            end if;
-           wait for 100 * TbPeriod;
+           wait for TbWait * TbPeriod;
         end loop stimloop4;
         TbSwInput <= (others => '0');
-        wait for 2000 * TbPeriod;
+        wait for 20 * TbWait * TbPeriod;
 
         -- Stop the clock and hence terminate the simulation
         TbSimEnded <= '1';

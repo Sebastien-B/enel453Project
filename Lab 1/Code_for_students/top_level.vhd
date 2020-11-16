@@ -17,7 +17,7 @@ architecture Behavioral of top_level is
     Signal Num_Hex0, Num_Hex1, Num_Hex2, Num_Hex3, Num_Hex4, Num_Hex5 : STD_LOGIC_VECTOR (3 downto 0):= (others=>'0');   
     Signal DP_in, Blank:      STD_LOGIC_VECTOR (5 downto 0);
     Signal switch_synced:     STD_LOGIC_VECTOR (9 downto 0);
-    Signal switch_inputs:     STD_LOGIC_VECTOR (12 downto 0);
+    --Signal switch_inputs:     STD_LOGIC_VECTOR (12 downto 0);
     Signal mux_switch_inputs: STD_LOGIC_VECTOR (15 DOWNTO 0);
     Signal mux_adc_avg_input: STD_LOGIC_VECTOR (15 DOWNTO 0);
     Signal bcd:               STD_LOGIC_VECTOR (15 DOWNTO 0);
@@ -25,7 +25,7 @@ architecture Behavioral of top_level is
     Signal ADC_Data_avg_out_16_wide: STD_LOGIC_VECTOR (15 DOWNTO 0);
     Signal mode_mux_sel:      STD_LOGIC_VECTOR (1 DOWNTO 0);
     Signal save_debounced:    STD_LOGIC;
-    Signal save_mux_out:      STD_LOGIC_VECTOR (15 DOWNTO 0);
+    --Signal save_mux_out:      STD_LOGIC_VECTOR (15 DOWNTO 0);
     Signal saved_7seg_input:  STD_LOGIC_VECTOR (15 DOWNTO 0);
     Signal ADC_Data_voltage_out:  STD_LOGIC_VECTOR (12 downto 0); -- Voltage in milli-volts
     Signal ADC_Data_distance_out: STD_LOGIC_VECTOR (12 downto 0); -- distance in 10^-4 cm (e.g. if distance = 33 cm, then 3300 is the value)
@@ -142,6 +142,7 @@ architecture Behavioral of top_level is
                   button => save,
                   result => save_debounced
                 );
+    --save_debounced <= save;
 
     mode_mux_ins : MUX_4TO1
         PORT MAP( in1     => mux_switch_inputs,
