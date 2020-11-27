@@ -7,6 +7,7 @@ entity PWM_DAC is
    Port    ( reset_n    : in  STD_LOGIC;
              clk        : in  STD_LOGIC;
              duty_cycle : in  STD_LOGIC_VECTOR (width-1 downto 0);
+             enable     : in  STD_LOGIC;
              pwm_out    : out STD_LOGIC
            );
 end PWM_DAC;
@@ -19,8 +20,10 @@ begin
    begin
        if( reset_n = '0') then
            counter <= (others => '0');
-       elsif (rising_edge(clk)) then 
-           counter <= counter + 1;
+       elsif (rising_edge(clk)) then
+           if (enable = '1') then
+                counter <= counter + 1;
+           end if;
        end if;
    end process;
  

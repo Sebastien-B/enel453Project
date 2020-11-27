@@ -9,9 +9,9 @@ entity downcounter is
     PORT    ( clk     : in  STD_LOGIC; -- clock to be divided
               reset_n : in  STD_LOGIC; -- active-high reset
               enable  : in  STD_LOGIC; -- active-high enable
-              zero    : out STD_LOGIC  -- creates a positive pulse every time current_count hits zero
+              zero    : out STD_LOGIC;  -- creates a positive pulse every time current_count hits zero
                                        -- useful to enable another device, like to slow down a counter
-              -- value  : out STD_LOGIC_VECTOR(integer(ceil(log2(real(period)))) - 1 downto 0) -- outputs the current_count value, if needed
+              value  : out STD_LOGIC_VECTOR(integer(ceil(log2(real(period)))) - 1 downto 0) -- outputs the current_count value, if needed
          );
 end downcounter;
 
@@ -39,6 +39,6 @@ BEGIN
      end if;
    end process;
    
-   -- value <= std_logic_vector(to_signed(current_count, value'length)); -- helps output the current_count value, if needed
+   value <= std_logic_vector(to_signed(current_count, value'length)); -- helps output the current_count value, if needed
    
 END Behavioral;
