@@ -13,7 +13,7 @@ architecture tb of tb_interpolator is
 --                out_len : integer := 10
               );
       port ( x : in std_logic_vector (7 downto 0);--(in_len - 1 downto 0);
-             y : out std_logic_vector (17 downto 0)--(out_len - 1 downto 0)
+             y : out std_logic_vector (9 downto 0)--(out_len - 1 downto 0)
            );
    end component;
 
@@ -21,7 +21,7 @@ architecture tb of tb_interpolator is
    --constant in_len : integer := 8;
    --constant out_len : integer := 10;
    signal x : std_logic_vector (7 downto 0);-- := (others => '0');
-   signal y_0 : std_logic_vector (17 downto 0);
+   signal y_0 : std_logic_vector (9 downto 0);
    signal y_1 : std_logic_vector (9 downto 0);
    signal y_2 : std_logic_vector (9 downto 0);
    signal y_3 : std_logic_vector (9 downto 0);

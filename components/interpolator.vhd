@@ -101,17 +101,41 @@ use IEEE.NUMERIC_STD.ALL;
 --   y <= std_logic_vector(resize(m*x_resized + b, out_len));
 --end structural;
 
+
+--entity interpolator is
+--   generic ( m : signed (8 downto 0);
+--             b : signed (17 downto 0)
+--           );
+--   port (
+--          x : in std_logic_vector (7 downto 0);
+--          y : out std_logic_vector (17 downto 0)
+--        );
+--end interpolator;
+--
+--architecture structural of interpolator is
+--   signal x_signed : signed (8 downto 0);
+--   signal mx : signed (17 downto 0);
+--   signal mxb : signed (17 downto 0);
+--begin
+--   x_signed <= signed('0' & x);
+--   mx <= m*x_signed;
+--   mxb <= mx + b;
+--   y <= std_logic_vector(mxb);
+--end structural;
+
+
 entity interpolator is
    generic ( m : signed (8 downto 0);
              b : signed (17 downto 0)
            );
    port (
           x : in std_logic_vector (7 downto 0);
-          y : out std_logic_vector (17 downto 0)
+          y : out std_logic_vector (9 downto 0)
         );
 end interpolator;
 
 architecture structural of interpolator is
+   
    signal x_signed : signed (8 downto 0);
    signal mx : signed (17 downto 0);
    signal mxb : signed (17 downto 0);
@@ -119,5 +143,5 @@ begin
    x_signed <= signed('0' & x);
    mx <= m*x_signed;
    mxb <= mx + b;
-   y <= std_logic_vector(mxb);
+   y <= std_logic_vector(mxb(9 downto 0));
 end structural;
