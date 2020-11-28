@@ -7,24 +7,25 @@ end tb_interpolator;
 
 architecture tb of tb_interpolator is
    component interpolator is
-      generic ( m : signed (8 downto 0);-- := 1;
-                b : signed (17 downto 0)--;-- := 0;
---                in_len : integer := 8;
---                out_len : integer := 10
+      generic ( in_width  : integer;
+                out_width : integer;
+                m         : integer;
+                b         : integer
               );
-      port ( x : in std_logic_vector (7 downto 0);--(in_len - 1 downto 0);
-             y : out std_logic_vector (9 downto 0)--(out_len - 1 downto 0)
+      port (
+             x : in  std_logic_vector (in_width - 1 downto 0);
+             y : out std_logic_vector (out_width - 1 downto 0)
            );
    end component;
 
-   constant TbPeriod : time := 20 ns; -- EDIT Put right period here
-   --constant in_len : integer := 8;
-   --constant out_len : integer := 10;
-   signal x : std_logic_vector (7 downto 0);-- := (others => '0');
-   signal y_0 : std_logic_vector (9 downto 0);
-   signal y_1 : std_logic_vector (9 downto 0);
-   signal y_2 : std_logic_vector (9 downto 0);
-   signal y_3 : std_logic_vector (9 downto 0);
+   constant TbPeriod : time := 20 ns;
+   constant in_width : integer := 8;
+   constant out_width : integer := 10;
+   signal x   : std_logic_vector (in_width - 1 downto 0);-- := (others => '0');
+   signal y_0 : std_logic_vector (out_width - 1 downto 0);
+   signal y_1 : std_logic_vector (out_width - 1 downto 0);
+   signal y_2 : std_logic_vector (out_width - 1 downto 0);
+   signal y_3 : std_logic_vector (out_width - 1 downto 0);
    signal TbClock : std_logic := '0';
    signal TbSimEnded : std_logic := '0';
    signal reset_n : std_logic := '1';
@@ -32,10 +33,10 @@ architecture tb of tb_interpolator is
 begin
 
    dut_0 : interpolator
-      generic map ( m => to_signed(2, 9),
-                    b => to_signed(1, 18)--,
-                    --in_len => in_len,
-                    --out_len => out_len
+      generic map ( m => 2,
+                    b => 1,
+                    in_width => in_width,
+                    out_width => out_width
                   )
       port map ( x => x,
                  y => y_0 );

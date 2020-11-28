@@ -125,23 +125,24 @@ use IEEE.NUMERIC_STD.ALL;
 
 
 entity interpolator is
-   generic ( m : signed (8 downto 0);
-             b : signed (17 downto 0)
+   generic ( in_width  : integer;
+             out_width : integer;
+             m         : integer;
+             b         : integer
            );
    port (
-          x : in std_logic_vector (7 downto 0);
-          y : out std_logic_vector (9 downto 0)
+          x : in  std_logic_vector (in_width - 1 downto 0);
+          y : out std_logic_vector (out_width - 1 downto 0)
         );
 end interpolator;
 
 architecture structural of interpolator is
-   
-   signal x_signed : signed (8 downto 0);
-   signal mx : signed (17 downto 0);
-   signal mxb : signed (17 downto 0);
+   signal x_signed : signed (in_width downto 0);
+   signal mx : signed ((in_width + 1)*2 - 1 downto 0);
+   signal mxb : signed ((in_width + 1)*2 - 1 downto 0);
 begin
    x_signed <= signed('0' & x);
-   mx <= m*x_signed;
-   mxb <= mx + b;
-   y <= std_logic_vector(mxb(9 downto 0));
+   mx <= to_signed(m, in_width + 1)*x_signed;
+   mxb <= mx + to_signed(b, (in_width + 1)*2);
+   y <= std_logic_vector(resize(mxb, out_width));
 end structural;
