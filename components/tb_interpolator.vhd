@@ -7,25 +7,25 @@ end tb_interpolator;
 
 architecture tb of tb_interpolator is
    component interpolator is
-      generic ( in_width  : integer;
-                out_width : integer;
-                m         : integer;
-                b         : integer
+      generic ( in_width  : integer := 8;
+                --out_width : integer := 16;
+                 m         : signed (1 downto 0) := 1;
+             b         : signed (in_width + m'length - 1 downto 0) := (others => '0')
               );
       port (
              x : in  std_logic_vector (in_width - 1 downto 0);
-             y : out std_logic_vector (out_width - 1 downto 0)
+             y : out std_logic_vector (x'length + m'length - 1 downto 0)
            );
    end component;
 
    constant TbPeriod : time := 20 ns;
    constant in_width : integer := 8;
-   constant out_width : integer := 10;
+   -- constant out_width : integer := 10;
    signal x   : std_logic_vector (in_width - 1 downto 0);-- := (others => '0');
-   signal y_0 : std_logic_vector (out_width - 1 downto 0);
-   signal y_1 : std_logic_vector (out_width - 1 downto 0);
-   signal y_2 : std_logic_vector (out_width - 1 downto 0);
-   signal y_3 : std_logic_vector (out_width - 1 downto 0);
+   signal y_0 : std_logic_vector (9 downto 0);
+   --signal y_1 : std_logic_vector (out_width - 1 downto 0);
+   --signal y_2 : std_logic_vector (out_width - 1 downto 0);
+   --signal y_3 : std_logic_vector (out_width - 1 downto 0);
    signal TbClock : std_logic := '0';
    signal TbSimEnded : std_logic := '0';
    signal reset_n : std_logic := '1';
@@ -33,13 +33,41 @@ architecture tb of tb_interpolator is
 begin
 
    dut_0 : interpolator
-      generic map ( m => 2,
-                    b => 1,
+      generic map ( m => "01",
+                    b => "0000000001",
                     in_width => in_width,
-                    out_width => out_width
+                    -- out_width => out_width
                   )
       port map ( x => x,
                  y => y_0 );
+
+--   dut_1 : interpolator
+--      generic map ( m => -2,
+--                    b => 1,
+--                    in_width => in_width,
+--                    out_width => out_width
+--                  )
+--      port map ( x => x,
+--                 y => y_1 );
+--
+--   dut_2 : interpolator
+--      generic map ( m => 2,
+--                    b => -1,
+--                    in_width => in_width,
+--                    out_width => out_width
+--                  )
+--      port map ( x => x,
+--                 y => y_2 );
+--
+--   dut_3 : interpolator
+--      generic map ( m => -2,
+--                    b => -1,
+--                    in_width => in_width,
+--                    out_width => out_width
+--                  )
+--      port map ( x => x,
+--                 y => y_3 );
+
 
     -- Clock generation
     TbClock <= not TbClock after TbPeriod/2 when TbSimEnded /= '1' else '0';

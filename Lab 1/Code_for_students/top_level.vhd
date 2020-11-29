@@ -104,6 +104,25 @@ architecture Behavioral of top_level is
                blank:  buffer std_logic_vector(5 downto 0)
              );
     end Component;
+    
+    Component distance_to_led_pwm IS
+   PORT(
+      clk            :  IN    STD_LOGIC;
+      reset_n        :  IN    STD_LOGIC;
+      voltage        :  IN    STD_LOGIC_VECTOR(12 DOWNTO 0);
+      pwm            :  OUT   STD_LOGIC
+       );
+    END component;
+    
+    component distance_to_7seg_pwm IS
+   PORT(
+      clk            :  IN    STD_LOGIC;
+      reset_n        :  IN    STD_LOGIC;
+      voltage        :  IN    STD_LOGIC_VECTOR(12 DOWNTO 0);
+      distance       :  IN    STD_LOGIC_VECTOR(12 DOWNTO 0);
+      pwm            :  OUT   STD_LOGIC
+      );
+    end component;
 
     -- Logic
     begin
@@ -196,9 +215,24 @@ architecture Behavioral of top_level is
                  sync_out => switch_synced
                );
 
-    LEDR(9 downto 0) <= switch_synced(9 downto 0); -- gives visual display of the switch inputs to the LEDs on board
+    LEDR(9 downto 2) <= switch_synced(9 downto 2); -- gives visual display of the switch inputs to the LEDs on board
     mux_switch_inputs <= "00000000" & switch_synced(7 downto 0);
     mode_mux_sel <= switch_synced(9 downto 8);
+    
+    distance_to_led_pwm_ins: distance_to_led_pwm
+        PORT MAP( clk => clk,
+                  reset_n => reset_n,
+                  voltage => ADC_Data_voltage_out,
+                  pwm => LEDR(0)
+                );
+                
+    distance_to_7seg_pwm_ins: distance_to_7seg_pwm
+        PORT MAP( clk => clk,
+                  reset_n => reset_n,
+                  voltage => ADC_Data_voltage_out,
+                  distance => ADC_Data_distance_out,
+                  pwm => LEDR(1)
+                );
 
     adc_avg_binary_bcd_ins: binary_bcd
         PORT MAP(
