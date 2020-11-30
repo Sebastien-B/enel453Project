@@ -8,6 +8,7 @@ entity top_level is
            save                          : in  STD_LOGIC;
            SW                            : in  STD_LOGIC_VECTOR (9 downto 0);
            LEDR                          : out STD_LOGIC_VECTOR (9 downto 0);
+           BUZZER                        : out STD_LOGIC;
            HEX0,HEX1,HEX2,HEX3,HEX4,HEX5 : out STD_LOGIC_VECTOR (7 downto 0)
          );
 end top_level;
@@ -33,6 +34,7 @@ architecture Behavioral of top_level is
     Signal ADC_Data_avg_out:      STD_LOGIC_VECTOR (11 downto 0); -- moving average of ADC value, over 256 samples
     Signal distance_bcd_out:      STD_LOGIC_VECTOR (15 DOWNTO 0);
     Signal voltage_bcd_out:       STD_LOGIC_VECTOR (15 DOWNTO 0);
+    signal distance_to_led_pwm_out: std_logic;
 
     -- Component declaration
 
@@ -127,6 +129,16 @@ architecture Behavioral of top_level is
       pwm            :  OUT   STD_LOGIC
       );
     end component;
+    
+    
+    component distance_to_buzzer_pwm IS
+   PORT(
+      clk            :  IN    STD_LOGIC;
+      reset_n        :  IN    STD_LOGIC;
+      voltage        :  IN    STD_LOGIC_VECTOR(12 DOWNTO 0);
+      pwm            :  OUT   STD_LOGIC
+       );
+   end component;
 
     -- Logic
     begin
@@ -223,7 +235,7 @@ architecture Behavioral of top_level is
                  sync_out => switch_synced
                );
 
-    LEDR(9 downto 2) <= switch_synced(9 downto 2); -- gives visual display of the switch inputs to the LEDs on board
+    -- LEDR(9 downto 2) <= switch_synced(9 downto 2); -- gives visual display of the switch inputs to the LEDs on board
     mux_switch_inputs <= "00000000" & switch_synced(7 downto 0);
     mode_mux_sel <= switch_synced(9 downto 8);
     
@@ -231,15 +243,16 @@ architecture Behavioral of top_level is
         PORT MAP( clk => clk,
                   reset_n => reset_n,
                   voltage => ADC_Data_voltage_out,
-                  pwm => LEDR(0)
+                  pwm => distance_to_led_pwm_out
                 );
                 
-    distance_to_7seg_pwm_ins: distance_to_7seg_pwm
-        PORT MAP( clk => clk,
-                  reset_n => reset_n,
-                  voltage => ADC_Data_voltage_out,
-                  distance => ADC_Data_distance_out,
-                  pwm => LEDR(1)
+    LEDR <= (others => distance_to_led_pwm_out);
+    
+    distance_to_buzzer_pwm_ins: distance_to_buzzer_pwm
+        PORT MAP( clk      => clk,
+                  reset_n  => reset_n,
+                  voltage  => ADC_Data_voltage_out,
+                  pwm      => BUZZER
                 );
 
     adc_avg_binary_bcd_ins: binary_bcd
