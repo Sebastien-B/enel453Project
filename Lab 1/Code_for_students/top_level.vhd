@@ -61,7 +61,7 @@ architecture Behavioral of top_level is
              );
     END Component;
 
-    Component debounce is
+    Component debounce is 
         PORT( clk     : IN  STD_LOGIC;  --input clock
               reset_n : IN  STD_LOGIC;  --asynchronous active low reset
               button  : IN  STD_LOGIC;  --input signal to be debounced
@@ -98,9 +98,13 @@ architecture Behavioral of top_level is
     end Component;
     
     Component digit_blanker is
-        port ( NUM_HEX0, NUM_HEX1, NUM_HEX2, NUM_HEX3, NUM_HEX4, NUM_HEX5: in std_logic_vector(3 downto 0);
+        port ( clk            :  IN    STD_LOGIC;
+          reset_n        :  IN    STD_LOGIC;
+        NUM_HEX0, NUM_HEX1, NUM_HEX2, NUM_HEX3, NUM_HEX4, NUM_HEX5: in std_logic_vector(3 downto 0);
                DP:     in std_logic_vector(5 downto 0);
                enable: in std_logic_vector(1 downto 0);
+               voltage        :  IN    STD_LOGIC_VECTOR(12 DOWNTO 0);
+          distance       :  IN    STD_LOGIC_VECTOR(12 DOWNTO 0);
                blank:  buffer std_logic_vector(5 downto 0)
              );
     end Component;
@@ -135,7 +139,9 @@ architecture Behavioral of top_level is
         --Blank    <= "110000"; -- blank the 2 MSB 7-segment displays (1=7-seg display off, 0=7-seg display on)
 
         digit_blanker_ins: digit_blanker
-        PORT MAP ( NUM_HEX0 => NUM_HEX0,
+        PORT MAP ( clk => clk,
+                   reset_n => reset_n,
+                   NUM_HEX0 => NUM_HEX0,
                    NUM_HEX1 => NUM_HEX1,
                    NUM_HEX2 => NUM_HEX2,
                    NUM_HEX3 => NUM_HEX3,
@@ -143,6 +149,8 @@ architecture Behavioral of top_level is
                    NUM_HEX5 => NUM_HEX5,
                    DP => DP_in,
                    enable => switch_synced(9 downto 8),
+                   voltage => ADC_Data_voltage_out,
+                   distance => ADC_Data_distance_out,
                    blank => Blank
                  );
 

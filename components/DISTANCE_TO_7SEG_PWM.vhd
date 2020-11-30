@@ -67,7 +67,7 @@ begin
                  enable => zero
                );
    
-   stopAtMaxDistance : process (distance)
+   stopAtMaxDistance : process (pwm_intermediate, distance)
    begin
       if (unsigned(distance) > max_distance) then
          downcounter_enable <= '0';
@@ -77,7 +77,5 @@ begin
          pwm <= pwm_intermediate;
       end if;
    end process;
-         
-   
 
 end behavior;
