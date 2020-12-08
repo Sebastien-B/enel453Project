@@ -32,60 +32,73 @@ Signal response_valid_out_i : std_logic;
 begin
 
 response_valid_out <= response_valid_out_i;
-ADC_out(11 downto 3) <= "100011000"; -- upper ADC bits stay the same
+--- ADC_out(11 downto 3) <= "100011000"; -- upper ADC bits stay the same
+ADC_out(8 downto 0) <= "100011000"; -- LOWER ADC bits stay the same
+
 
          response_valid_out_process: process -- This models a 1 MSps ADC output
          begin                               -- However, your ADC has 25 kHz ADC output
-              response_valid_out_i <= '0'; wait for 980 ns;
-              response_valid_out_i <= '1'; wait for 20 ns; 
+              response_valid_out_i <= '0'; wait for 1980us; -- 980 ns; -- wait for 2ms instead of 1us.
+              response_valid_out_i <= '1'; wait for   20us; -- 20 ns; 
          end process;
         
-         ADC_out_process : Process (response_valid_out_i) -- modify the lower 3 ADC bits
+         ADC_out_process : Process (response_valid_out_i) -- modify the UPPER 3 ADC bits
          begin
             if rising_edge(response_valid_out_i) then
                Case counter is
                   when "0000" => 
-                     ADC_out(2 downto 0) <= "000";
+                     -- ADC_out(2 downto 0) <= "000";
+                     ADC_out(11 downto 9) <= "000";
                      counter             <= "0001";
                      
                   when "0001" => 
-                     ADC_out(2 downto 0) <= "100";
-                     counter             <= "0010";                     
+                     -- ADC_out(2 downto 0) <= "100";
+                     ADC_out(11 downto 9) <= "100";
+                     counter             <= "0010";
                   
                   when "0010" => 
-                     ADC_out(2 downto 0) <= "010";
+                     -- ADC_out(2 downto 0) <= "010";
+                     ADC_out(11 downto 9) <= "010";
                      counter             <= "0011";
                   
                   when "0011" => 
-                     ADC_out(2 downto 0) <= "000";
+                     -- ADC_out(2 downto 0) <= "000";
+                     ADC_out(11 downto 9) <= "001";
                      counter             <= "0100";
                   
                   when "0100" => 
-                     ADC_out(2 downto 0) <= "111";
+                     -- ADC_out(2 downto 0) <= "111";
+                     ADC_out(11 downto 9) <= "111";
                      counter             <= "0101";
                   
                   when "0101" =>
-                     ADC_out(2 downto 0) <= "101";
+                     -- ADC_out(2 downto 0) <= "101";
+                     ADC_out(11 downto 9) <= "101";
                      counter             <= "0110";
                   
                   when "0110" => 
-                     ADC_out(2 downto 0) <= "011";
+                     -- ADC_out(2 downto 0) <= "011";
+                     ADC_out(11 downto 9) <= "011";
                      counter             <= "0111";
                   
                   when "0111" => 
-                     ADC_out(2 downto 0) <= "110";
+                     -- ADC_out(2 downto 0) <= "110";
+                     ADC_out(11 downto 9) <= "110";
                      counter             <= "1000";
                   
                   when "1000" => 
-                     ADC_out(2 downto 0) <= "110";
+                     -- ADC_out(2 downto 0) <= "110";
+                     ADC_out(11 downto 9) <= "110";
                      counter             <= "1001";
                   
                   when "1001" => 
-                     ADC_out(2 downto 0) <= "101";
+                     -- ADC_out(2 downto 0) <= "101";
+                     ADC_out(11 downto 9) <= "101";
                      counter             <= "1011";
                   
                   When others => 
-                     ADC_out(2 downto 0) <= "111";
+                     -- ADC_out(2 downto 0) <= "111";
+                     ADC_out(11 downto 9) <= "101";
                      counter             <= "0000";
                
                End Case;
